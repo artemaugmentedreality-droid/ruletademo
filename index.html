@@ -3,240 +3,227 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>Interactivo AR - Ruleta de Premios</title>
+    <title>Ruleta VIP AR</title>
 
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
 
     <style>
-        :root { --cafe: #6B5E4C; --dorado: #C5A059; --crema: #FFFDF5; }
-        
-        body { margin: 0; overflow: hidden; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #000; }
+        /* Colores Vibrantes Neón */
+        :root { 
+            --bg-oscuro: #0a0a0a;
+            --neon-rosa: #ff00ff;
+            --neon-cian: #00ffff;
+            --neon-amarillo: #f0ff00;
+            --blanco: #ffffff;
+        }
 
-        /* Pantallas de Interfaz */
+        body { margin: 0; overflow: hidden; font-family: 'Inter', 'Segoe UI', sans-serif; background: var(--bg-oscuro); color: var(--blanco); }
+
         .full-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
-            z-index: 1000; text-align: center; box-sizing: border-box;
+            z-index: 1000; text-align: center;
         }
 
-        #overlay { background: var(--crema); z-index: 9999; }
-        
-        #pantalla-transicion { 
-            background: rgba(0,0,0,0.85); display: none; z-index: 9000; 
-            padding: 20px; color: white;
+        /* 1. Inicio Estilo Vibrante */
+        #overlay { background: var(--bg-oscuro); z-index: 9999; }
+        .titulo-vibrante {
+            font-size: 2.5em; letter-spacing: 4px; color: var(--neon-cian);
+            text-shadow: 0 0 10px var(--neon-cian), 0 0 20px var(--neon-cian);
+            margin-bottom: 40px;
         }
 
-        #wheel-container { background: rgba(0,0,0,0.95); display: none; z-index: 9500; }
-
-        /* Estilos de botones */
-        .btn-main {
-            background: var(--cafe); color: white; border: none; padding: 18px 45px;
-            border-radius: 50px; font-weight: bold; cursor: pointer; letter-spacing: 2px;
-            text-transform: uppercase; transition: 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        /* 2. Transición */
+        #pantalla-transicion { background: rgba(0,0,0,0.95); display: none; z-index: 9000; }
+        .card-ruleta {
+            width: 80%; padding: 30px; border: 2px solid var(--neon-rosa);
+            border-radius: 20px; background: rgba(255, 0, 255, 0.1);
+            box-shadow: 0 0 20px var(--neon-rosa);
         }
-        .btn-main:active { transform: scale(0.95); }
 
-        /* Formulario Lead */
-        #form-container {
-            background: white; padding: 30px; border-radius: 20px;
-            width: 90%; max-width: 360px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        /* 3. Formulario Dark */
+        #step-registro { display: none; background: var(--bg-oscuro); z-index: 9100; }
+        .form-box { 
+            background: #1a1a1a; padding: 30px; border-radius: 20px; 
+            width: 85%; max-width: 340px; border: 1px solid #333;
         }
         input { 
-            width: 100%; margin: 12px 0; padding: 14px; 
-            border: 1px solid #ddd; border-radius: 10px; font-size: 16px; box-sizing: border-box;
+            width: 100%; margin: 12px 0; padding: 14px; background: #222;
+            border: 1px solid #444; border-radius: 10px; color: white; font-size: 16px;
+            box-sizing: border-box;
         }
-        
-        .privacy-box { 
-            font-size: 12px; color: #555; display: flex; align-items: flex-start; 
-            gap: 10px; margin: 15px 0; text-align: left; line-height: 1.4;
-        }
-        .privacy-box input { width: auto; margin-top: 3px; }
+        input:focus { border-color: var(--neon-cian); outline: none; }
 
-        /* Ruleta Canvas */
-        .wheel-box { position: relative; width: 320px; height: 320px; margin: 25px 0; }
-        canvas { width: 100%; height: 100%; }
+        /* 4. Ruleta */
+        #wheel-container { display: none; background: var(--bg-oscuro); z-index: 9200; }
+        .wheel-box { position: relative; width: 340px; height: 340px; margin: 25px 0; }
+        canvas { width: 100%; height: 100%; filter: drop-shadow(0 0 10px rgba(0,255,255,0.3)); }
         
         .wheel-arrow {
-            position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
-            width: 0; height: 0; border-left: 18px solid transparent;
-            border-right: 18px solid transparent; border-top: 35px solid white; z-index: 20;
+            position: absolute; top: -20px; left: 50%; transform: translateX(-50%);
+            width: 0; height: 0; border-left: 20px solid transparent;
+            border-right: 20px solid transparent; border-top: 35px solid var(--neon-amarillo); z-index: 20;
         }
 
         .wheel-center {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 75px; height: 75px; background: white; border-radius: 50%;
+            width: 80px; height: 80px; background: var(--blanco); border-radius: 50%;
             display: flex; justify-content: center; align-items: center;
-            font-weight: bold; color: var(--cafe); cursor: pointer; z-index: 25;
-            border: 4px solid var(--cafe); user-select: none; font-size: 14px;
+            font-weight: bold; color: #000; cursor: pointer; z-index: 25;
+            box-shadow: 0 0 20px var(--blanco); font-size: 16px;
         }
+
+        .btn-main {
+            background: var(--neon-cian); color: #000; border: none; padding: 18px 40px;
+            border-radius: 50px; font-weight: bold; cursor: pointer; 
+            text-transform: uppercase; letter-spacing: 2px; box-shadow: 0 0 15px var(--neon-cian);
+        }
+
+        .privacy-text { font-size: 11px; color: #888; margin-top: 15px; display: flex; gap: 8px; text-align: left; }
     </style>
 </head>
 <body>
 
     <div id="overlay" class="full-screen">
-        <h1 style="color: var(--cafe); letter-spacing: 6px; font-weight: 300;">PROYECTO INTERACTIVO</h1>
-        <p style="color: #888; margin-bottom: 30px;">Escanea el marcador para comenzar</p>
-        <button class="btn-main" onclick="startAR()">ACTIVAR CÁMARA</button>
+        <div class="titulo-vibrante">PREMIUM AR</div>
+        <button class="btn-main" onclick="activarAR()">ESCANEAR AHORA</button>
     </div>
 
     <div id="pantalla-transicion" class="full-screen">
-        <div style="width: 280px; height: 380px; border: 3px solid var(--dorado); border-radius: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; background: rgba(107, 94, 76, 0.4);">
-            <h2 style="color: var(--dorado);">¡BIENVENIDO!</h2>
-            <p>Has activado la experiencia interactiva de Colonia 55.</p>
-            <p style="font-size: 13px; opacity: 0.8;">A continuación podrás registrarte para participar en nuestra ruleta de premios.</p>
+        <div class="card-ruleta">
+            <h2 style="color: var(--neon-rosa); margin: 0;">¡BIENVENIDO!</h2>
+            <p style="opacity: 0.9;">Código validado con éxito.</p>
+            <p style="font-size: 0.9em;">Regístrate para liberar el giro de la suerte.</p>
         </div>
-        <button class="btn-main" style="margin-top: 30px;" onclick="mostrarFormulario()">CONTINUAR AL REGISTRO</button>
+        <button class="btn-main" style="margin-top: 40px; background: var(--neon-rosa); box-shadow: 0 0 15px var(--neon-rosa);" onclick="irARegistro()">CONTINUAR</button>
     </div>
 
-    <div id="step-registro" class="full-screen" style="display: none; background: rgba(0,0,0,0.9);">
-        <div id="form-container">
-            <h3 style="color: var(--cafe); margin-top: 0;">REGISTRO</h3>
+    <div id="step-registro" class="full-screen">
+        <div class="form-box">
+            <h2 style="margin-top:0; color: var(--neon-cian);">DATOS</h2>
             <input type="text" id="nombre" placeholder="Nombre completo">
-            <input type="tel" id="whatsapp" placeholder="WhatsApp (10 dígitos)">
-            <div class="privacy-box">
-                <input type="checkbox" id="check-privacidad"> 
-                <span>Acepto los términos y condiciones y el <b>Aviso de Privacidad</b> para el uso de mis datos.</span>
+            <input type="tel" id="whatsapp" placeholder="WhatsApp">
+            <div class="privacy-text">
+                <input type="checkbox" id="aviso" style="width: auto;">
+                <label for="aviso">Acepto los términos y el aviso de privacidad de datos.</label>
             </div>
-            <button class="btn-main" onclick="irARuleta()" style="width: 100%;">ENTRAR A LA RULETA</button>
+            <button class="btn-main" style="width: 100%; margin-top: 20px;" onclick="irARuleta()">GIRAR RULETA</button>
         </div>
     </div>
 
     <div id="wheel-container" class="full-screen">
-        <h2 style="color: white; letter-spacing: 2px;">¡GIRA Y GANA!</h2>
+        <h2 style="color: var(--neon-cian); text-shadow: 0 0 10px var(--neon-cian);">¡MUCHA SUERTE!</h2>
         <div class="wheel-box">
             <div class="wheel-arrow"></div>
-            <canvas id="wheelCanvas"></canvas>
-            <div class="wheel-center" id="spinBtn">GIRAR</div>
+            <canvas id="canvasWheel"></canvas>
+            <div class="wheel-center" id="btnSpin">SPIN</div>
         </div>
-        <p id="mensaje-final" style="color: var(--dorado); font-size: 1.3em; font-weight: bold; min-height: 1.5em;"></p>
+        <p id="txtPremio" style="color: var(--neon-amarillo); font-weight: bold; font-size: 1.6em; text-shadow: 0 0 10px rgba(240,255,0,0.5);"></p>
     </div>
 
-    <a-scene mindar-image="imageTargetSrc: ./targets.mind; autoStart: false; uiLoading: no; uiScanning: yes;" vr-mode-ui="enabled: false">
+    <a-scene mindar-image="imageTargetSrc: ./targets.mind; autoStart: false; uiLoading: no;" vr-mode-ui="enabled: false">
         <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
-        <a-entity id="target-anchor" mindar-image-target="targetIndex: 0"></a-entity>
+        <a-entity id="target" mindar-image-target="targetIndex: 0"></a-entity>
     </a-scene>
 
     <script>
         const sceneEl = document.querySelector('a-scene');
         
-        // CONFIGURACIÓN DE PREMIOS (Modifica aquí)
-        const premios = ["BONO $5,000", "DESCUENTO 5%", "REGALO SORPRESA", "SUERTE PRÓXIMA", "BONO $2,000", "KIT BIENVENIDA", "DESCUENTO 2%", "SIN PREMIO"];
-        const colores = ["#6B5E4C", "#C5A059", "#6B5E4C", "#C5A059", "#6B5E4C", "#C5A059", "#6B5E4C", "#C5A059"];
+        // COLORES VIBRANTES PARA LOS TRIÁNGULOS
+        const premios = ["PREMIO 1", "DESCUENTO", "PREMIO 2", "SIGUE INTENTANDO", "PREMIO 3", "PREMIO 4", "PREMIO 5", "SIN PREMIO"];
+        const colores = ["#ff00ff", "#00ffff", "#ff00ff", "#00ffff", "#ff00ff", "#00ffff", "#ff00ff", "#00ffff"];
         
-        let canvas = document.getElementById('wheelCanvas');
+        let canvas = document.getElementById('canvasWheel');
         let ctx = canvas.getContext('2d');
         canvas.width = 500; canvas.height = 500;
         let startAngle = 0;
         let arc = Math.PI / (premios.length / 2);
 
-        // Dibujar Ruleta
-        function drawWheel() {
+        function draw() {
             ctx.clearRect(0,0,500,500);
+            ctx.strokeStyle = "#ffffff";
+            ctx.lineWidth = 2;
             for(let i = 0; i < premios.length; i++) {
                 let angle = startAngle + i * arc;
                 ctx.fillStyle = colores[i];
                 ctx.beginPath();
-                ctx.arc(250, 250, 230, angle, angle + arc, false);
+                ctx.arc(250, 250, 240, angle, angle + arc, false);
                 ctx.arc(250, 250, 40, angle + arc, angle, true);
                 ctx.fill();
+                ctx.stroke();
+
                 ctx.save();
-                ctx.fillStyle = "white";
+                ctx.fillStyle = "#000000"; // Texto en negro para que resalte en neón
                 ctx.translate(250 + Math.cos(angle + arc/2) * 160, 250 + Math.sin(angle + arc/2) * 160);
                 ctx.rotate(angle + arc/2 + Math.PI/2);
-                ctx.font = 'bold 16px Arial';
+                ctx.font = 'bold 18px Arial';
                 ctx.fillText(premios[i], -ctx.measureText(premios[i]).width/2, 0);
                 ctx.restore();
             }
         }
 
-        // 1. Iniciar AR
-        function startAR() {
+        function activarAR() {
             document.getElementById('overlay').style.display = 'none';
             sceneEl.systems['mindar-image-system'].start();
         }
 
-        // 2. Detección Estable (Anti-fricción/temblor)
-        document.querySelector('#target-anchor').addEventListener("targetFound", () => {
-            const mindarSystem = sceneEl.systems['mindar-image-system'];
-            if (mindarSystem) {
-                mindarSystem.stop(); // Congelamos AR para estabilidad total
-                const video = document.querySelector('video');
-                if(video) video.style.filter = "blur(15px) brightness(0.3)";
+        document.querySelector('#target').addEventListener("targetFound", () => {
+            const system = sceneEl.systems['mindar-image-system'];
+            if(system) {
+                system.stop(); 
+                const v = document.querySelector('video');
+                if(v) v.style.filter = "blur(15px) brightness(0.2)";
             }
             document.getElementById('pantalla-transicion').style.display = 'flex';
         });
 
-        // 3. Flujo Interfaz
-        function mostrarFormulario() {
+        function irARegistro() {
             document.getElementById('pantalla-transicion').style.display = 'none';
             document.getElementById('step-registro').style.display = 'flex';
         }
 
         function irARuleta() {
-            const nombre = document.getElementById('nombre').value;
-            const check = document.getElementById('check-privacidad').checked;
-            
-            if(!nombre || !check) {
-                alert("Por favor, ingresa tu nombre y acepta el aviso de privacidad.");
-                return;
+            if(!document.getElementById('nombre').value || !document.getElementById('aviso').checked) {
+                alert("Completa tus datos y acepta la privacidad."); return;
             }
             document.getElementById('step-registro').style.display = 'none';
             document.getElementById('wheel-container').style.display = 'flex';
-            drawWheel();
+            draw();
         }
 
-        // 4. Lógica de la Ruleta (Fricción Física)
-        document.getElementById('spinBtn').addEventListener('click', () => {
-            document.getElementById('spinBtn').style.pointerEvents = 'none';
-            document.getElementById('spinBtn').style.opacity = '0.5';
+        document.getElementById('btnSpin').addEventListener('click', () => {
+            document.getElementById('btnSpin').style.pointerEvents = 'none';
+            document.getElementById('btnSpin').style.opacity = '0.5';
             
-            let spinAngleStart = Math.random() * 10 + 15;
+            let spinAngleStart = Math.random() * 10 + 20;
             let spinTime = 0;
-            let spinTimeTotal = Math.random() * 3 + 5 * 1000; // 5-8 segundos
+            let spinTimeTotal = Math.random() * 3 + 4 * 1000;
 
             function rotate() {
                 spinTime += 30;
                 if(spinTime >= spinTimeTotal) {
-                    // Calcular Ganador
                     let degrees = startAngle * 180 / Math.PI + 90;
                     let index = Math.floor((360 - degrees % 360) / (arc * 180 / Math.PI));
-                    let ganador = premios[index];
-                    
-                    document.getElementById('mensaje-final').innerText = "¡GANASTE: " + ganador + "!";
-                    setTimeout(() => enviarWhatsApp(ganador), 2500);
+                    let p = premios[index];
+                    document.getElementById('txtPremio').innerText = "GANASTE: " + p;
+                    setTimeout(() => {
+                        const nom = document.getElementById('nombre').value;
+                        const msg = encodeURIComponent(`*NUEVO GANADOR AR*\nNombre: ${nom}\nPremio: ${p}`);
+                        window.location.href = `https://wa.me/5215542492026?text=${msg}`;
+                    }, 2500);
                     return;
                 }
-                // Función de fricción (Ease Out)
                 let progress = spinTime / spinTimeTotal;
-                let ease = 1 - Math.pow(1 - progress, 3); // Cubic ease-out
-                let currentAngle = spinAngleStart * (1 - ease);
-                
-                startAngle += (currentAngle * Math.PI / 180);
-                drawWheel();
+                let ease = 1 - Math.pow(1 - progress, 3); // Fricción suave
+                startAngle += ((spinAngleStart * (1 - ease)) * Math.PI / 180);
+                draw();
                 setTimeout(rotate, 30);
             }
             rotate();
         });
 
-        // 5. Envío Final
-        function enviarWhatsApp(premio) {
-            const nom = document.getElementById('nombre').value;
-            const tel = document.getElementById('whatsapp').value;
-            const miNumero = "5215542492026"; // TU NÚMERO
-            
-            const msg = encodeURIComponent(
-                `*NUEVO REGISTRO AR*\n` +
-                `*Nombre:* ${nom}\n` +
-                `*WhatsApp:* ${tel}\n` +
-                `*Premio:* ${premio}\n\n` +
-                `_El usuario aceptó el aviso de privacidad._`
-            );
-            window.location.href = `https://wa.me/${miNumero}?text=${msg}`;
-        }
-
-        // Dibujo inicial
-        drawWheel();
+        draw();
     </script>
 </body>
 </html>
