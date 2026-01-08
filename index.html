@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Interactivo AR - Ruleta de Premios</title>
+
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
+
+    <style>
+        :root { --cafe: #6B5E4C; --dorado: #C5A059; --crema: #FFFDF5; }
+        
+        body { margin: 0; overflow: hidden; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #000; }
+
+        /* Pantallas de Interfaz */
+        .full-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            z-index: 1000; text-align: center; box-sizing: border-box;
+        }
+
+        #overlay { background: var(--crema); z-index: 9999; }
+        
+        #pantalla-transicion { 
+            background: rgba(0,0,0,0.85); display: none; z-index: 9000; 
+            padding: 20px; color: white;
+        }
+
+        #wheel-container { background: rgba(0,0,0,0.95); display: none; z-index: 9500; }
+
+        /* Estilos de botones */
+        .btn-main {
+            background: var(--cafe); color: white; border: none; padding: 18px 45px;
+            border-radius: 50px; font-weight: bold; cursor: pointer; letter-spacing: 2px;
+            text-transform: uppercase; transition: 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        .btn-main:active { transform: scale(0.95); }
+
+        /* Formulario Lead */
+        #form-container {
+            background: white; padding: 30px; border-radius: 20px;
+            width: 90%; max-width: 360px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        input { 
+            width: 100%; margin: 12px 0; padding: 14px; 
+            border: 1px solid #ddd; border-radius: 10px; font-size: 16px; box-sizing: border-box;
+        }
+        
+        .privacy-box { 
+            font-size: 12px; color: #555; display: flex; align-items: flex-start; 
+            gap: 10px; margin: 15px 0; text-align: left; line-height: 1.4;
+        }
+        .privacy-box input { width: auto; margin-top: 3px; }
+
+        /* Ruleta Canvas */
+        .wheel-box { position: relative; width: 320px; height: 320px; margin: 25px 0; }
+        canvas { width: 100%; height: 100%; }
+        
+        .wheel-arrow {
+            position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
+            width: 0; height: 0; border-left: 18px solid transparent;
+            border-right: 18px solid transparent; border-top: 35px solid white; z-index: 20;
+        }
+
+        .wheel-center {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 75px; height: 75px; background: white; border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            font-weight: bold; color: var(--cafe); cursor: pointer; z-index: 25;
+            border: 4px solid var(--cafe); user-select: none; font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="overlay" class="full-screen">
+        <h1 style="color: var(--cafe); letter-spacing: 6px; font-weight: 300;">PROYECTO INTERACTIVO</h1>
+        <p style="color: #888; margin-bottom: 30px;">Escanea el marcador para comenzar</p>
+        <button class="btn-main" onclick="startAR()">ACTIVAR CÁMARA</button>
+    </div>
+
+    <div id="pantalla-transicion" class="full-screen">
+        <div style="width: 280px; height: 380px; border: 3px solid var(--dorado); border-radius: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; background: rgba(107, 94, 76, 0.4);">
+            <h2 style="color: var(--dorado);">¡BIENVENIDO!</h2>
+            <p>Has activado la experiencia interactiva de Colonia 55.</p>
+            <p style="font-size: 13px; opacity: 0.8;">A continuación podrás registrarte para participar en nuestra ruleta de premios.</p>
+        </div>
+        <button class="btn-main" style="margin-top: 30px;" onclick="mostrarFormulario()">CONTINUAR AL REGISTRO</button>
+    </div>
+
+    <div id="step-registro" class="full-screen" style="display: none; background: rgba(0,0,0,0.9);">
+        <div id="form-container">
+            <h3 style="color: var(--cafe); margin-top: 0;">REGISTRO</h3>
+            <input type="text" id="nombre" placeholder="Nombre completo">
+            <input type="tel" id="whatsapp" placeholder="WhatsApp (10 dígitos)">
+            <div class="privacy-box">
+                <input type="checkbox" id="check-privacidad"> 
+                <span>Acepto los términos y condiciones y el <b>Aviso de Privacidad</b> para el uso de mis datos.</span>
+            </div>
+            <button class="btn-main" onclick="irARuleta()" style="width: 100%;">ENTRAR A LA RULETA</button>
+        </div>
+    </div>
+
+    <div id="wheel-container" class="full-screen">
+        <h2 style="color: white; letter-spacing: 2px;">¡GIRA Y GANA!</h2>
+        <div class="wheel-box">
+            <div class="wheel-arrow"></div>
+            <canvas id="wheelCanvas"></canvas>
+            <div class="wheel-center" id="spinBtn">GIRAR</div>
+        </div>
+        <p id="mensaje-final" style="color: var(--dorado); font-size: 1.3em; font-weight: bold; min-height: 1.5em;"></p>
+    </div>
+
+    <a-scene mindar-image="imageTargetSrc: ./targets.mind; autoStart: false; uiLoading: no; uiScanning: yes;" vr-mode-ui="enabled: false">
+        <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+        <a-entity id="target-anchor" mindar-image-target="targetIndex: 0"></a-entity>
+    </a-scene>
+
+    <script>
+        const sceneEl = document.querySelector('a-scene');
+        
+        // CONFIGURACIÓN DE PREMIOS (Modifica aquí)
+        const premios = ["BONO $5,000", "DESCUENTO 5%", "REGALO SORPRESA", "SUERTE PRÓXIMA", "BONO $2,000", "KIT BIENVENIDA", "DESCUENTO 2%", "SIN PREMIO"];
+        const colores = ["#6B5E4C", "#C5A059", "#6B5E4C", "#C5A059", "#6B5E4C", "#C5A059", "#6B5E4C", "#C5A059"];
+        
+        let canvas = document.getElementById('wheelCanvas');
+        let ctx = canvas.getContext('2d');
+        canvas.width = 500; canvas.height = 500;
+        let startAngle = 0;
+        let arc = Math.PI / (premios.length / 2);
+
+        // Dibujar Ruleta
+        function drawWheel() {
+            ctx.clearRect(0,0,500,500);
+            for(let i = 0; i < premios.length; i++) {
+                let angle = startAngle + i * arc;
+                ctx.fillStyle = colores[i];
+                ctx.beginPath();
+                ctx.arc(250, 250, 230, angle, angle + arc, false);
+                ctx.arc(250, 250, 40, angle + arc, angle, true);
+                ctx.fill();
+                ctx.save();
+                ctx.fillStyle = "white";
+                ctx.translate(250 + Math.cos(angle + arc/2) * 160, 250 + Math.sin(angle + arc/2) * 160);
+                ctx.rotate(angle + arc/2 + Math.PI/2);
+                ctx.font = 'bold 16px Arial';
+                ctx.fillText(premios[i], -ctx.measureText(premios[i]).width/2, 0);
+                ctx.restore();
+            }
+        }
+
+        // 1. Iniciar AR
+        function startAR() {
+            document.getElementById('overlay').style.display = 'none';
+            sceneEl.systems['mindar-image-system'].start();
+        }
+
+        // 2. Detección Estable (Anti-fricción/temblor)
+        document.querySelector('#target-anchor').addEventListener("targetFound", () => {
+            const mindarSystem = sceneEl.systems['mindar-image-system'];
+            if (mindarSystem) {
+                mindarSystem.stop(); // Congelamos AR para estabilidad total
+                const video = document.querySelector('video');
+                if(video) video.style.filter = "blur(15px) brightness(0.3)";
+            }
+            document.getElementById('pantalla-transicion').style.display = 'flex';
+        });
+
+        // 3. Flujo Interfaz
+        function mostrarFormulario() {
+            document.getElementById('pantalla-transicion').style.display = 'none';
+            document.getElementById('step-registro').style.display = 'flex';
+        }
+
+        function irARuleta() {
+            const nombre = document.getElementById('nombre').value;
+            const check = document.getElementById('check-privacidad').checked;
+            
+            if(!nombre || !check) {
+                alert("Por favor, ingresa tu nombre y acepta el aviso de privacidad.");
+                return;
+            }
+            document.getElementById('step-registro').style.display = 'none';
+            document.getElementById('wheel-container').style.display = 'flex';
+            drawWheel();
+        }
+
+        // 4. Lógica de la Ruleta (Fricción Física)
+        document.getElementById('spinBtn').addEventListener('click', () => {
+            document.getElementById('spinBtn').style.pointerEvents = 'none';
+            document.getElementById('spinBtn').style.opacity = '0.5';
+            
+            let spinAngleStart = Math.random() * 10 + 15;
+            let spinTime = 0;
+            let spinTimeTotal = Math.random() * 3 + 5 * 1000; // 5-8 segundos
+
+            function rotate() {
+                spinTime += 30;
+                if(spinTime >= spinTimeTotal) {
+                    // Calcular Ganador
+                    let degrees = startAngle * 180 / Math.PI + 90;
+                    let index = Math.floor((360 - degrees % 360) / (arc * 180 / Math.PI));
+                    let ganador = premios[index];
+                    
+                    document.getElementById('mensaje-final').innerText = "¡GANASTE: " + ganador + "!";
+                    setTimeout(() => enviarWhatsApp(ganador), 2500);
+                    return;
+                }
+                // Función de fricción (Ease Out)
+                let progress = spinTime / spinTimeTotal;
+                let ease = 1 - Math.pow(1 - progress, 3); // Cubic ease-out
+                let currentAngle = spinAngleStart * (1 - ease);
+                
+                startAngle += (currentAngle * Math.PI / 180);
+                drawWheel();
+                setTimeout(rotate, 30);
+            }
+            rotate();
+        });
+
+        // 5. Envío Final
+        function enviarWhatsApp(premio) {
+            const nom = document.getElementById('nombre').value;
+            const tel = document.getElementById('whatsapp').value;
+            const miNumero = "5215542492026"; // TU NÚMERO
+            
+            const msg = encodeURIComponent(
+                `*NUEVO REGISTRO AR*\n` +
+                `*Nombre:* ${nom}\n` +
+                `*WhatsApp:* ${tel}\n` +
+                `*Premio:* ${premio}\n\n` +
+                `_El usuario aceptó el aviso de privacidad._`
+            );
+            window.location.href = `https://wa.me/${miNumero}?text=${msg}`;
+        }
+
+        // Dibujo inicial
+        drawWheel();
+    </script>
+</body>
+</html>
