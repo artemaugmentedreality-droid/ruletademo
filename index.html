@@ -3,22 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>Ruleta VIP AR</title>
+    <title>Ruleta VIP Neón AR</title>
 
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
 
     <style>
-        /* Colores Vibrantes Neón */
         :root { 
-            --bg-oscuro: #0a0a0a;
-            --neon-rosa: #ff00ff;
+            --bg: #000000;
             --neon-cian: #00ffff;
+            --neon-rosa: #ff00ff;
             --neon-amarillo: #f0ff00;
-            --blanco: #ffffff;
         }
 
-        body { margin: 0; overflow: hidden; font-family: 'Inter', 'Segoe UI', sans-serif; background: var(--bg-oscuro); color: var(--blanco); }
+        body { margin: 0; overflow: hidden; font-family: 'Arial', sans-serif; background: var(--bg); color: white; }
 
         .full-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -26,100 +24,98 @@
             z-index: 1000; text-align: center;
         }
 
-        /* 1. Inicio Estilo Vibrante */
-        #overlay { background: var(--bg-oscuro); z-index: 9999; }
-        .titulo-vibrante {
-            font-size: 2.5em; letter-spacing: 4px; color: var(--neon-cian);
-            text-shadow: 0 0 10px var(--neon-cian), 0 0 20px var(--neon-cian);
-            margin-bottom: 40px;
-        }
-
-        /* 2. Transición */
+        /* Pantallas */
+        #overlay { background: var(--bg); z-index: 9999; }
         #pantalla-transicion { background: rgba(0,0,0,0.95); display: none; z-index: 9000; }
-        .card-ruleta {
-            width: 80%; padding: 30px; border: 2px solid var(--neon-rosa);
-            border-radius: 20px; background: rgba(255, 0, 255, 0.1);
-            box-shadow: 0 0 20px var(--neon-rosa);
+        #step-registro { display: none; background: var(--bg); z-index: 9100; }
+        #wheel-container { display: none; background: var(--bg); z-index: 9200; }
+
+        /* Estilos Vibrantes */
+        .titulo {
+            font-size: 2.2em; color: var(--neon-cian);
+            text-shadow: 0 0 10px var(--neon-cian), 0 0 20px var(--neon-cian);
+            margin-bottom: 30px; letter-spacing: 3px;
         }
 
-        /* 3. Formulario Dark */
-        #step-registro { display: none; background: var(--bg-oscuro); z-index: 9100; }
-        .form-box { 
-            background: #1a1a1a; padding: 30px; border-radius: 20px; 
-            width: 85%; max-width: 340px; border: 1px solid #333;
+        .card {
+            width: 80%; max-width: 300px; padding: 25px; 
+            border: 2px solid var(--neon-rosa); border-radius: 20px;
+            box-shadow: 0 0 20px var(--neon-rosa); background: rgba(255, 0, 255, 0.05);
         }
+
+        .form-box { width: 85%; max-width: 340px; padding: 20px; }
+
         input { 
-            width: 100%; margin: 12px 0; padding: 14px; background: #222;
-            border: 1px solid #444; border-radius: 10px; color: white; font-size: 16px;
-            box-sizing: border-box;
+            width: 100%; margin: 10px 0; padding: 14px; background: #111;
+            border: 1px solid #333; border-radius: 10px; color: white;
+            font-size: 16px; box-sizing: border-box;
         }
         input:focus { border-color: var(--neon-cian); outline: none; }
 
-        /* 4. Ruleta */
-        #wheel-container { display: none; background: var(--bg-oscuro); z-index: 9200; }
-        .wheel-box { position: relative; width: 340px; height: 340px; margin: 25px 0; }
-        canvas { width: 100%; height: 100%; filter: drop-shadow(0 0 10px rgba(0,255,255,0.3)); }
+        .btn-main {
+            background: var(--neon-cian); color: #000; border: none; padding: 18px 40px;
+            border-radius: 50px; font-weight: bold; cursor: pointer;
+            text-transform: uppercase; letter-spacing: 2px;
+            box-shadow: 0 0 15px var(--neon-cian); transition: 0.3s;
+        }
+
+        /* Ruleta Canvas */
+        .wheel-box { position: relative; width: 330px; height: 330px; margin: 20px 0; }
+        canvas { width: 100%; height: 100%; filter: drop-shadow(0 0 5px var(--neon-cian)); }
         
         .wheel-arrow {
-            position: absolute; top: -20px; left: 50%; transform: translateX(-50%);
-            width: 0; height: 0; border-left: 20px solid transparent;
-            border-right: 20px solid transparent; border-top: 35px solid var(--neon-amarillo); z-index: 20;
+            position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
+            width: 0; height: 0; border-left: 18px solid transparent;
+            border-right: 18px solid transparent; border-top: 30px solid var(--neon-amarillo); z-index: 20;
         }
 
         .wheel-center {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 80px; height: 80px; background: var(--blanco); border-radius: 50%;
+            width: 75px; height: 75px; background: white; border-radius: 50%;
             display: flex; justify-content: center; align-items: center;
-            font-weight: bold; color: #000; cursor: pointer; z-index: 25;
-            box-shadow: 0 0 20px var(--blanco); font-size: 16px;
+            font-weight: bold; color: black; z-index: 25;
+            box-shadow: 0 0 15px white; border: 3px solid black; cursor: pointer;
         }
 
-        .btn-main {
-            background: var(--neon-cian); color: #000; border: none; padding: 18px 40px;
-            border-radius: 50px; font-weight: bold; cursor: pointer; 
-            text-transform: uppercase; letter-spacing: 2px; box-shadow: 0 0 15px var(--neon-cian);
-        }
-
-        .privacy-text { font-size: 11px; color: #888; margin-top: 15px; display: flex; gap: 8px; text-align: left; }
+        .privacy { font-size: 11px; color: #777; margin: 15px 0; display: flex; gap: 8px; text-align: left; }
     </style>
 </head>
 <body>
 
     <div id="overlay" class="full-screen">
-        <div class="titulo-vibrante">PREMIUM AR</div>
-        <button class="btn-main" onclick="activarAR()">ESCANEAR AHORA</button>
+        <div class="titulo">VIP EXPERIENCE</div>
+        <button class="btn-main" onclick="activarAR()">ESCANEAR CÓDIGO</button>
     </div>
 
     <div id="pantalla-transicion" class="full-screen">
-        <div class="card-ruleta">
-            <h2 style="color: var(--neon-rosa); margin: 0;">¡BIENVENIDO!</h2>
-            <p style="opacity: 0.9;">Código validado con éxito.</p>
-            <p style="font-size: 0.9em;">Regístrate para liberar el giro de la suerte.</p>
+        <div class="card">
+            <h2 style="color: var(--neon-rosa);">DETECTADO</h2>
+            <p>El portal está abierto. Tu premio te espera tras el registro.</p>
         </div>
-        <button class="btn-main" style="margin-top: 40px; background: var(--neon-rosa); box-shadow: 0 0 15px var(--neon-rosa);" onclick="irARegistro()">CONTINUAR</button>
+        <button class="btn-main" style="margin-top: 30px; background: var(--neon-rosa); box-shadow: 0 0 15px var(--neon-rosa);" onclick="irARegistro()">REGISTRARME</button>
     </div>
 
     <div id="step-registro" class="full-screen">
         <div class="form-box">
-            <h2 style="margin-top:0; color: var(--neon-cian);">DATOS</h2>
+            <h2 style="color: var(--neon-cian);">DATOS DE ACCESO</h2>
             <input type="text" id="nombre" placeholder="Nombre completo">
             <input type="tel" id="whatsapp" placeholder="WhatsApp">
-            <div class="privacy-text">
+            <div class="privacy">
                 <input type="checkbox" id="aviso" style="width: auto;">
-                <label for="aviso">Acepto los términos y el aviso de privacidad de datos.</label>
+                <label for="aviso">Acepto términos y el Aviso de Privacidad de mis datos personales.</label>
             </div>
-            <button class="btn-main" style="width: 100%; margin-top: 20px;" onclick="irARuleta()">GIRAR RULETA</button>
+            <button class="btn-main" style="width: 100%;" onclick="irARuleta()">ACCEDER A RULETA</button>
         </div>
     </div>
 
     <div id="wheel-container" class="full-screen">
-        <h2 style="color: var(--neon-cian); text-shadow: 0 0 10px var(--neon-cian);">¡MUCHA SUERTE!</h2>
+        <h2 style="color: var(--neon-cian);">GIRE PARA GANAR</h2>
         <div class="wheel-box">
             <div class="wheel-arrow"></div>
             <canvas id="canvasWheel"></canvas>
             <div class="wheel-center" id="btnSpin">SPIN</div>
         </div>
-        <p id="txtPremio" style="color: var(--neon-amarillo); font-weight: bold; font-size: 1.6em; text-shadow: 0 0 10px rgba(240,255,0,0.5);"></p>
+        <p id="txtPremio" style="color: var(--neon-amarillo); font-weight: bold; font-size: 1.5em; text-shadow: 0 0 10px var(--neon-amarillo);"></p>
     </div>
 
     <a-scene mindar-image="imageTargetSrc: ./targets.mind; autoStart: false; uiLoading: no;" vr-mode-ui="enabled: false">
@@ -130,8 +126,8 @@
     <script>
         const sceneEl = document.querySelector('a-scene');
         
-        // COLORES VIBRANTES PARA LOS TRIÁNGULOS
-        const premios = ["PREMIO 1", "DESCUENTO", "PREMIO 2", "SIGUE INTENTANDO", "PREMIO 3", "PREMIO 4", "PREMIO 5", "SIN PREMIO"];
+        // PREMIOS Y COLORES VIBRANTES
+        const premios = ["BONO $1000", "DESCUENTO", "PREMIO 2", "SIGUE INTENTANDO", "BONO $500", "KIT VIP", "DESCUENTO 5%", "SUERTE"];
         const colores = ["#ff00ff", "#00ffff", "#ff00ff", "#00ffff", "#ff00ff", "#00ffff", "#ff00ff", "#00ffff"];
         
         let canvas = document.getElementById('canvasWheel');
@@ -142,22 +138,22 @@
 
         function draw() {
             ctx.clearRect(0,0,500,500);
-            ctx.strokeStyle = "#ffffff";
+            ctx.strokeStyle = "white";
             ctx.lineWidth = 2;
             for(let i = 0; i < premios.length; i++) {
                 let angle = startAngle + i * arc;
                 ctx.fillStyle = colores[i];
                 ctx.beginPath();
                 ctx.arc(250, 250, 240, angle, angle + arc, false);
-                ctx.arc(250, 250, 40, angle + arc, angle, true);
+                ctx.arc(250, 250, 30, angle + arc, angle, true);
                 ctx.fill();
                 ctx.stroke();
 
                 ctx.save();
-                ctx.fillStyle = "#000000"; // Texto en negro para que resalte en neón
-                ctx.translate(250 + Math.cos(angle + arc/2) * 160, 250 + Math.sin(angle + arc/2) * 160);
+                ctx.fillStyle = "black";
+                ctx.translate(250 + Math.cos(angle + arc/2) * 150, 250 + Math.sin(angle + arc/2) * 150);
                 ctx.rotate(angle + arc/2 + Math.PI/2);
-                ctx.font = 'bold 18px Arial';
+                ctx.font = 'bold 16px Arial';
                 ctx.fillText(premios[i], -ctx.measureText(premios[i]).width/2, 0);
                 ctx.restore();
             }
@@ -196,7 +192,7 @@
             document.getElementById('btnSpin').style.pointerEvents = 'none';
             document.getElementById('btnSpin').style.opacity = '0.5';
             
-            let spinAngleStart = Math.random() * 10 + 20;
+            let spinAngleStart = Math.random() * 10 + 25;
             let spinTime = 0;
             let spinTimeTotal = Math.random() * 3 + 4 * 1000;
 
@@ -209,13 +205,13 @@
                     document.getElementById('txtPremio').innerText = "GANASTE: " + p;
                     setTimeout(() => {
                         const nom = document.getElementById('nombre').value;
-                        const msg = encodeURIComponent(`*NUEVO GANADOR AR*\nNombre: ${nom}\nPremio: ${p}`);
+                        const msg = encodeURIComponent(`*GANADOR RULETA*\nNombre: ${nom}\nPremio: ${p}\n_Aceptó aviso de privacidad._`);
                         window.location.href = `https://wa.me/5215542492026?text=${msg}`;
                     }, 2500);
                     return;
                 }
                 let progress = spinTime / spinTimeTotal;
-                let ease = 1 - Math.pow(1 - progress, 3); // Fricción suave
+                let ease = 1 - Math.pow(1 - progress, 3); // Fricción Ease-Out
                 startAngle += ((spinAngleStart * (1 - ease)) * Math.PI / 180);
                 draw();
                 setTimeout(rotate, 30);
