@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>Ruleta VIP Neón AR</title>
+    <title>Colonia 55 - Ruleta Neón</title>
 
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
@@ -24,44 +24,26 @@
             z-index: 1000; text-align: center;
         }
 
-        /* Pantallas */
+        /* 1. Inicio */
         #overlay { background: var(--bg); z-index: 9999; }
-        #pantalla-transicion { background: rgba(0,0,0,0.95); display: none; z-index: 9000; }
-        #step-registro { display: none; background: var(--bg); z-index: 9100; }
-        #wheel-container { display: none; background: var(--bg); z-index: 9200; }
-
-        /* Estilos Vibrantes */
-        .titulo {
-            font-size: 2.2em; color: var(--neon-cian);
+        .titulo-inicio {
+            font-size: 2.5em; color: var(--neon-cian);
             text-shadow: 0 0 10px var(--neon-cian), 0 0 20px var(--neon-cian);
-            margin-bottom: 30px; letter-spacing: 3px;
+            letter-spacing: 5px; margin-bottom: 40px;
         }
 
-        .card {
+        /* 2. Transición */
+        #pantalla-transicion { background: rgba(0,0,0,0.95); display: none; z-index: 9000; }
+        .card-neon {
             width: 80%; max-width: 300px; padding: 25px; 
             border: 2px solid var(--neon-rosa); border-radius: 20px;
             box-shadow: 0 0 20px var(--neon-rosa); background: rgba(255, 0, 255, 0.05);
         }
 
-        .form-box { width: 85%; max-width: 340px; padding: 20px; }
-
-        input { 
-            width: 100%; margin: 10px 0; padding: 14px; background: #111;
-            border: 1px solid #333; border-radius: 10px; color: white;
-            font-size: 16px; box-sizing: border-box;
-        }
-        input:focus { border-color: var(--neon-cian); outline: none; }
-
-        .btn-main {
-            background: var(--neon-cian); color: #000; border: none; padding: 18px 40px;
-            border-radius: 50px; font-weight: bold; cursor: pointer;
-            text-transform: uppercase; letter-spacing: 2px;
-            box-shadow: 0 0 15px var(--neon-cian); transition: 0.3s;
-        }
-
-        /* Ruleta Canvas */
+        /* 3. Ruleta */
+        #wheel-container { display: none; background: var(--bg); z-index: 9100; }
         .wheel-box { position: relative; width: 330px; height: 330px; margin: 20px 0; }
-        canvas { width: 100%; height: 100%; filter: drop-shadow(0 0 5px var(--neon-cian)); }
+        canvas { width: 100%; height: 100%; filter: drop-shadow(0 0 8px var(--neon-cian)); }
         
         .wheel-arrow {
             position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
@@ -77,45 +59,64 @@
             box-shadow: 0 0 15px white; border: 3px solid black; cursor: pointer;
         }
 
-        .privacy { font-size: 11px; color: #777; margin: 15px 0; display: flex; gap: 8px; text-align: left; }
+        /* 4. Registro (Post-Premio) */
+        #step-registro { display: none; background: rgba(0,0,0,0.98); z-index: 9200; }
+        .form-box { width: 85%; max-width: 340px; padding: 25px; background: #111; border-radius: 20px; border: 1px solid #333; }
+        
+        input { 
+            width: 100%; margin: 12px 0; padding: 14px; background: #222;
+            border: 1px solid #444; border-radius: 10px; color: white;
+            font-size: 16px; box-sizing: border-box;
+        }
+        input:focus { border-color: var(--neon-cian); outline: none; }
+
+        .btn-main {
+            background: var(--neon-cian); color: #000; border: none; padding: 18px 40px;
+            border-radius: 50px; font-weight: bold; cursor: pointer;
+            text-transform: uppercase; letter-spacing: 2px;
+            box-shadow: 0 0 15px var(--neon-cian);
+        }
+
+        .privacy { font-size: 11px; color: #888; margin: 15px 0; display: flex; gap: 8px; text-align: left; }
     </style>
 </head>
 <body>
 
     <div id="overlay" class="full-screen">
-        <div class="titulo">VIP EXPERIENCE</div>
+        <div class="titulo-inicio">COLONIA 55</div>
         <button class="btn-main" onclick="activarAR()">ESCANEAR CÓDIGO</button>
     </div>
 
     <div id="pantalla-transicion" class="full-screen">
-        <div class="card">
-            <h2 style="color: var(--neon-rosa);">DETECTADO</h2>
-            <p>El portal está abierto. Tu premio te espera tras el registro.</p>
+        <div class="card-neon">
+            <h2 style="color: var(--neon-rosa);">¡CÓDIGO LISTO!</h2>
+            <p>Se ha desbloqueado la ruleta de premios Colonia 55.</p>
         </div>
-        <button class="btn-main" style="margin-top: 30px; background: var(--neon-rosa); box-shadow: 0 0 15px var(--neon-rosa);" onclick="irARegistro()">REGISTRARME</button>
+        <button class="btn-main" style="margin-top: 30px; background: var(--neon-rosa); box-shadow: 0 0 15px var(--neon-rosa);" onclick="irARuleta()">GIRAR AHORA</button>
+    </div>
+
+    <div id="wheel-container" class="full-screen">
+        <h2 style="color: var(--neon-cian);">PRUEBA TU SUERTE</h2>
+        <div class="wheel-box">
+            <div class="wheel-arrow"></div>
+            <canvas id="canvasWheel"></canvas>
+            <div class="wheel-center" id="btnSpin">GIRAR</div>
+        </div>
+        <p id="txtPremio" style="color: var(--neon-amarillo); font-weight: bold; font-size: 1.5em; text-shadow: 0 0 10px var(--neon-amarillo);"></p>
     </div>
 
     <div id="step-registro" class="full-screen">
         <div class="form-box">
-            <h2 style="color: var(--neon-cian);">DATOS DE ACCESO</h2>
+            <h3 id="titulo-premio" style="color: var(--neon-amarillo); margin-bottom: 20px;"></h3>
+            <p style="font-size: 14px; margin-bottom: 20px;">Déjanos tus datos para enviarte tu premio y el brochure digital.</p>
             <input type="text" id="nombre" placeholder="Nombre completo">
             <input type="tel" id="whatsapp" placeholder="WhatsApp">
             <div class="privacy">
-                <input type="checkbox" id="aviso" style="width: auto;">
-                <label for="aviso">Acepto términos y el Aviso de Privacidad de mis datos personales.</label>
+                <input type="checkbox" id="aviso">
+                <label for="aviso">Acepto el aviso de privacidad de datos.</label>
             </div>
-            <button class="btn-main" style="width: 100%;" onclick="irARuleta()">ACCEDER A RULETA</button>
+            <button class="btn-main" style="width: 100%;" onclick="finalizarTodo()">RECLAMAR PREMIO</button>
         </div>
-    </div>
-
-    <div id="wheel-container" class="full-screen">
-        <h2 style="color: var(--neon-cian);">GIRE PARA GANAR</h2>
-        <div class="wheel-box">
-            <div class="wheel-arrow"></div>
-            <canvas id="canvasWheel"></canvas>
-            <div class="wheel-center" id="btnSpin">SPIN</div>
-        </div>
-        <p id="txtPremio" style="color: var(--neon-amarillo); font-weight: bold; font-size: 1.5em; text-shadow: 0 0 10px var(--neon-amarillo);"></p>
     </div>
 
     <a-scene mindar-image="imageTargetSrc: ./targets.mind; autoStart: false; uiLoading: no;" vr-mode-ui="enabled: false">
@@ -125,9 +126,7 @@
 
     <script>
         const sceneEl = document.querySelector('a-scene');
-        
-        // PREMIOS Y COLORES VIBRANTES
-        const premios = ["BONO $1000", "DESCUENTO", "PREMIO 2", "SIGUE INTENTANDO", "BONO $500", "KIT VIP", "DESCUENTO 5%", "SUERTE"];
+        const premios = ["PREMIO 1", "DESCUENTO", "PREMIO 2", "SIGUE INTENTANDO", "PREMIO 3", "PREMIO 4", "PREMIO 5", "SIN PREMIO"];
         const colores = ["#ff00ff", "#00ffff", "#ff00ff", "#00ffff", "#ff00ff", "#00ffff", "#ff00ff", "#00ffff"];
         
         let canvas = document.getElementById('canvasWheel');
@@ -135,6 +134,7 @@
         canvas.width = 500; canvas.height = 500;
         let startAngle = 0;
         let arc = Math.PI / (premios.length / 2);
+        let premioGanado = "";
 
         function draw() {
             ctx.clearRect(0,0,500,500);
@@ -148,7 +148,6 @@
                 ctx.arc(250, 250, 30, angle + arc, angle, true);
                 ctx.fill();
                 ctx.stroke();
-
                 ctx.save();
                 ctx.fillStyle = "black";
                 ctx.translate(250 + Math.cos(angle + arc/2) * 150, 250 + Math.sin(angle + arc/2) * 150);
@@ -165,33 +164,20 @@
         }
 
         document.querySelector('#target').addEventListener("targetFound", () => {
-            const system = sceneEl.systems['mindar-image-system'];
-            if(system) {
-                system.stop(); 
-                const v = document.querySelector('video');
-                if(v) v.style.filter = "blur(15px) brightness(0.2)";
-            }
+            sceneEl.systems['mindar-image-system'].stop();
+            const v = document.querySelector('video');
+            if(v) v.style.filter = "blur(15px) brightness(0.2)";
             document.getElementById('pantalla-transicion').style.display = 'flex';
         });
 
-        function irARegistro() {
-            document.getElementById('pantalla-transicion').style.display = 'none';
-            document.getElementById('step-registro').style.display = 'flex';
-        }
-
         function irARuleta() {
-            if(!document.getElementById('nombre').value || !document.getElementById('aviso').checked) {
-                alert("Completa tus datos y acepta la privacidad."); return;
-            }
-            document.getElementById('step-registro').style.display = 'none';
+            document.getElementById('pantalla-transicion').style.display = 'none';
             document.getElementById('wheel-container').style.display = 'flex';
             draw();
         }
 
         document.getElementById('btnSpin').addEventListener('click', () => {
             document.getElementById('btnSpin').style.pointerEvents = 'none';
-            document.getElementById('btnSpin').style.opacity = '0.5';
-            
             let spinAngleStart = Math.random() * 10 + 25;
             let spinTime = 0;
             let spinTimeTotal = Math.random() * 3 + 4 * 1000;
@@ -201,23 +187,34 @@
                 if(spinTime >= spinTimeTotal) {
                     let degrees = startAngle * 180 / Math.PI + 90;
                     let index = Math.floor((360 - degrees % 360) / (arc * 180 / Math.PI));
-                    let p = premios[index];
-                    document.getElementById('txtPremio').innerText = "GANASTE: " + p;
+                    premioGanado = premios[index];
+                    document.getElementById('txtPremio').innerText = "GANASTE: " + premioGanado;
+                    
                     setTimeout(() => {
-                        const nom = document.getElementById('nombre').value;
-                        const msg = encodeURIComponent(`*GANADOR RULETA*\nNombre: ${nom}\nPremio: ${p}\n_Aceptó aviso de privacidad._`);
-                        window.location.href = `https://wa.me/5215542492026?text=${msg}`;
-                    }, 2500);
+                        document.getElementById('wheel-container').style.display = 'none';
+                        document.getElementById('step-registro').style.display = 'flex';
+                        document.getElementById('titulo-premio').innerText = "¡GANASTE " + premioGanado + "!";
+                    }, 2000);
                     return;
                 }
                 let progress = spinTime / spinTimeTotal;
-                let ease = 1 - Math.pow(1 - progress, 3); // Fricción Ease-Out
+                let ease = 1 - Math.pow(1 - progress, 3);
                 startAngle += ((spinAngleStart * (1 - ease)) * Math.PI / 180);
                 draw();
                 setTimeout(rotate, 30);
             }
             rotate();
         });
+
+        function finalizarTodo() {
+            const nom = document.getElementById('nombre').value;
+            const tel = document.getElementById('whatsapp').value;
+            const av = document.getElementById('aviso').checked;
+            if(!nom || !tel || !av) { alert("Completa tus datos para reclamar."); return; }
+            
+            const msg = encodeURIComponent(`*RECLAMO DE PREMIO COLONIA 55*\nNombre: ${nom}\nWhatsApp: ${tel}\nGanó: ${premioGanado}\n_Aceptó aviso de privacidad._`);
+            window.location.href = `https://wa.me/5215542492026?text=${msg}`;
+        }
 
         draw();
     </script>
