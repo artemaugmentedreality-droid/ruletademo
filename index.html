@@ -10,13 +10,15 @@
 
     <style>
         :root { 
-            --deep-purple: #1a0b2e;
-            --neon-purple: #8a2be2;
-            --neon-pink: #ff007f;
+            --deep-purple: #462c7a;
+            --main-purple: #8e54e9;
+            --gradient-start: #4776e6;
+            --gradient-end: #8e54e9;
+            --magenta: #d946ef;
             --white: #ffffff;
         }
 
-        body { margin: 0; overflow: hidden; font-family: 'Segoe UI', Roboto, sans-serif; background: var(--deep-purple); color: var(--white); }
+        body { margin: 0; overflow: hidden; font-family: 'Segoe UI', Arial, sans-serif; background: var(--deep-purple); color: var(--white); }
 
         .screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -25,59 +27,62 @@
         }
 
         /* 1. Inicio */
-        #overlay { background: linear-gradient(135deg, #1a0b2e 0%, #090214 100%); z-index: 9999; }
+        #overlay { 
+            background: linear-gradient(180deg, #462c7a 0%, #241445 100%); 
+            z-index: 9999; 
+        }
         .main-title {
-            font-size: 1.8rem; font-weight: bold; text-transform: uppercase;
-            letter-spacing: 2px; margin-bottom: 30px; line-height: 1.2;
-            text-shadow: 0 0 10px var(--neon-purple);
+            font-size: 2.2rem; font-weight: 800; text-transform: uppercase;
+            letter-spacing: -1px; margin-bottom: 40px; line-height: 1;
+            filter: drop-shadow(0 4px 4px rgba(0,0,0,0.3));
         }
 
-        /* 2. Detección */
-        #pantalla-transicion { background: rgba(0,0,0,0.9); display: none; z-index: 9000; }
+        /* 2. Detección (Transición) */
+        #pantalla-transicion { background: rgba(0,0,0,0.85); display: none; z-index: 9000; }
         .card-glass {
-            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px);
-            border: 2px solid var(--neon-pink); border-radius: 20px; padding: 30px;
-            box-shadow: 0 0 20px var(--neon-pink); width: 85%; max-width: 320px;
+            background: linear-gradient(135deg, rgba(142, 84, 233, 0.4) 0%, rgba(217, 70, 239, 0.4) 100%);
+            border: 2px solid var(--white); border-radius: 25px; padding: 35px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 85%; max-width: 320px;
         }
 
         /* 3. Ruleta */
-        #wheel-container { display: none; background: var(--deep-purple); z-index: 9100; }
-        .wheel-box { position: relative; width: 330px; height: 330px; margin: 20px 0; }
-        canvas { width: 100%; height: 100%; filter: drop-shadow(0 0 15px var(--neon-purple)); }
+        #wheel-container { display: none; background: #241445; z-index: 9100; }
+        .wheel-box { position: relative; width: 340px; height: 340px; margin: 20px 0; }
+        canvas { width: 100%; height: 100%; filter: drop-shadow(0 0 15px rgba(0,0,0,0.5)); }
         
         .wheel-arrow {
             position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
             width: 0; height: 0; border-left: 18px solid transparent;
-            border-right: 18px solid transparent; border-top: 35px solid var(--neon-pink); z-index: 20;
+            border-right: 18px solid transparent; border-top: 35px solid var(--magenta); z-index: 20;
         }
 
         .wheel-center {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 70px; height: 70px; background: var(--white); border-radius: 50%;
+            width: 75px; height: 75px; background: var(--white); border-radius: 50%;
             display: flex; justify-content: center; align-items: center;
-            font-weight: bold; color: var(--deep-purple); z-index: 25;
-            box-shadow: 0 0 15px var(--white); cursor: pointer; border: none;
+            font-weight: 900; color: var(--deep-purple); z-index: 25;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2); cursor: pointer; border: none;
         }
 
-        /* 4. Formulario Final */
-        #step-registro { display: none; background: linear-gradient(180deg, #1a0b2e 0%, #3b106d 100%); z-index: 9200; }
+        /* 4. Registro Post-Premio */
+        #step-registro { display: none; background: var(--main-purple); z-index: 9200; }
         .form-box { width: 100%; max-width: 340px; }
+        
         input { 
-            width: 100%; margin: 10px 0; padding: 15px; background: rgba(255,255,255,0.05);
-            border: 1px solid var(--neon-purple); border-radius: 12px; color: white;
+            width: 100%; margin: 8px 0; padding: 15px; background: var(--white);
+            border: none; border-radius: 10px; color: #333;
             font-size: 16px; box-sizing: border-box; outline: none;
         }
-        input:focus { border-color: var(--neon-pink); box-shadow: 0 0 10px var(--neon-pink); }
 
         .btn-action {
-            background: var(--white); color: var(--deep-purple); border: none; padding: 16px 40px;
-            border-radius: 50px; font-weight: bold; cursor: pointer;
-            text-transform: uppercase; letter-spacing: 1px; transition: 0.3s;
-            margin-top: 15px;
+            background: var(--white); color: var(--deep-purple); border: none; padding: 15px 45px;
+            border-radius: 12px; font-weight: 800; cursor: pointer;
+            text-transform: uppercase; transition: 0.3s; margin-top: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
 
-        .privacy-row { font-size: 12px; color: #bbb; margin: 15px 0; display: flex; align-items: flex-start; gap: 10px; text-align: left; }
-        .privacy-row input { width: auto; margin: 0; }
+        .privacy-row { font-size: 11px; color: rgba(255,255,255,0.8); margin: 15px 0; display: flex; align-items: flex-start; gap: 8px; text-align: left; }
+        .privacy-row input { width: auto; margin: 2px 0 0 0; }
     </style>
 </head>
 <body>
@@ -89,36 +94,36 @@
 
     <div id="pantalla-transicion" class="screen">
         <div class="card-glass">
-            <h2 style="color: var(--neon-pink); margin-top: 0;">¡CÓDIGO DETECTADO!</h2>
-            <p>Prepárate para girar y ganar un premio especial.</p>
+            <h2 style="margin-top: 0; font-weight: 800;">¡CÓDIGO DETECTADO!</h2>
+            <p>Todo listo para girar y ganar.</p>
         </div>
-        <button class="btn-action" onclick="irARuleta()">GIRAR RULETA</button>
+        <button class="btn-action" style="background: linear-gradient(to right, #d946ef, #8e54e9); color: white;" onclick="irARuleta()">GIRAR</button>
     </div>
 
     <div id="wheel-container" class="screen">
-        <h2 style="text-shadow: 0 0 10px var(--neon-purple);">TOCA EL CENTRO</h2>
+        <h2 style="font-weight: 800;">TOCA EL CENTRO</h2>
         <div class="wheel-box">
             <div class="wheel-arrow"></div>
             <canvas id="canvasWheel"></canvas>
             <div class="wheel-center" id="btnSpin">GIRAR</div>
         </div>
-        <p id="txtPremio" style="color: var(--neon-pink); font-weight: bold; font-size: 1.6em; min-height: 1.5em;"></p>
+        <p id="txtPremio" style="font-weight: 900; font-size: 1.8em; min-height: 1.5em; color: var(--magenta);"></p>
     </div>
 
     <div id="step-registro" class="screen">
         <div class="form-box">
-            <h2 id="label-ganaste" style="color: var(--neon-pink); margin-bottom: 5px;">¡FELICIDADES!</h2>
-            <p style="margin-bottom: 25px;">Completa tus datos para recibir tu premio.</p>
+            <h2 id="label-ganaste" style="font-weight: 800; margin-bottom: 5px;">¡FELICIDADES!</h2>
+            <p style="margin-bottom: 20px; font-size: 14px;">Ingresa tus datos para reclamar.</p>
             
             <input type="text" id="nombre" placeholder="Nombre completo">
             <input type="tel" id="whatsapp" placeholder="WhatsApp">
             
             <div class="privacy-row">
                 <input type="checkbox" id="aviso">
-                <label for="aviso">Acepto el aviso de privacidad y el tratamiento de mis datos personales.</label>
+                <label for="aviso">Acepto el aviso de privacidad y el tratamiento de mis datos.</label>
             </div>
             
-            <button class="btn-action" style="width: 100%; background: var(--neon-pink); color: white;" onclick="enviarWhatsApp()">RECLAMAR PREMIO</button>
+            <button class="btn-action" style="width: 100%;" onclick="enviarWhatsApp()">RECLAMAR PREMIO</button>
         </div>
     </div>
 
@@ -130,7 +135,8 @@
     <script>
         const sceneEl = document.querySelector('a-scene');
         const premios = ["PREMIO 1", "PREMIO 2", "PREMIO 3", "PREMIO 4", "PREMIO 5", "PREMIO 6", "PREMIO 7", "PREMIO 8"];
-        const colores = ["#8a2be2", "#ff007f", "#8a2be2", "#ff007f", "#8a2be2", "#ff007f", "#8a2be2", "#ff007f"];
+        // Colores alternados entre Lavanda y Magenta (como en la imagen)
+        const colores = ["#8e54e9", "#d946ef", "#8e54e9", "#d946ef", "#8e54e9", "#d946ef", "#8e54e9", "#d946ef"];
         
         let canvas = document.getElementById('canvasWheel');
         let ctx = canvas.getContext('2d');
@@ -148,7 +154,8 @@
                 ctx.arc(250, 250, 240, angle, angle + arc, false);
                 ctx.arc(250, 250, 40, angle + arc, angle, true);
                 ctx.fill();
-                ctx.strokeStyle = "rgba(255,255,255,0.2)";
+                ctx.strokeStyle = "rgba(255,255,255,0.3)";
+                ctx.lineWidth = 2;
                 ctx.stroke();
 
                 ctx.save();
@@ -169,7 +176,7 @@
         document.querySelector('#target').addEventListener("targetFound", () => {
             sceneEl.systems['mindar-image-system'].stop();
             const v = document.querySelector('video');
-            if(v) v.style.filter = "blur(15px) brightness(0.2)";
+            if(v) v.style.filter = "blur(15px) brightness(0.4)";
             document.getElementById('pantalla-transicion').style.display = 'flex';
         });
 
@@ -183,7 +190,7 @@
             document.getElementById('btnSpin').style.pointerEvents = 'none';
             document.getElementById('btnSpin').style.opacity = '0.5';
             
-            let spinAngleStart = Math.random() * 10 + 25;
+            let spinAngleStart = Math.random() * 10 + 30;
             let spinTime = 0;
             let spinTimeTotal = Math.random() * 3 + 4 * 1000;
 
@@ -193,13 +200,13 @@
                     let degrees = startAngle * 180 / Math.PI + 90;
                     let index = Math.floor((360 - degrees % 360) / (arc * 180 / Math.PI));
                     premioFinal = premios[index];
-                    document.getElementById('txtPremio').innerText = "¡GANASTE " + premioFinal + "!";
+                    document.getElementById('txtPremio').innerText = "¡" + premioFinal + "!";
                     
                     setTimeout(() => {
                         document.getElementById('wheel-container').style.display = 'none';
                         document.getElementById('step-registro').style.display = 'flex';
                         document.getElementById('label-ganaste').innerText = "¡GANASTE " + premioFinal + "!";
-                    }, 2000);
+                    }, 1800);
                     return;
                 }
                 let progress = spinTime / spinTimeTotal;
@@ -217,7 +224,7 @@
             if(!nom || !tel || !document.getElementById('aviso').checked) {
                 alert("Completa tus datos y acepta la privacidad."); return;
             }
-            const msg = encodeURIComponent(`*GANADOR DE RULETA*\nPremio: ${premioFinal}\nNombre: ${nom}\nWhatsApp: ${tel}\n_Consentimiento de privacidad aceptado._`);
+            const msg = encodeURIComponent(`*RECLAMO DE PREMIO*\nPremio: ${premioFinal}\nNombre: ${nom}\nWhatsApp: ${tel}`);
             window.location.href = `https://wa.me/5215542492026?text=${msg}`;
         }
 
