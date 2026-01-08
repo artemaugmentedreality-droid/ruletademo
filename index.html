@@ -3,119 +3,122 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>Colonia 55 - Ruleta Neón</title>
+    <title>Ruleta Interactiva AR</title>
 
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
 
     <style>
         :root { 
-            --bg: #000000;
-            --neon-cian: #00ffff;
-            --neon-rosa: #ff00ff;
-            --neon-amarillo: #f0ff00;
+            --deep-purple: #1a0b2e;
+            --neon-purple: #8a2be2;
+            --neon-pink: #ff007f;
+            --white: #ffffff;
         }
 
-        body { margin: 0; overflow: hidden; font-family: 'Arial', sans-serif; background: var(--bg); color: white; }
+        body { margin: 0; overflow: hidden; font-family: 'Segoe UI', Roboto, sans-serif; background: var(--deep-purple); color: var(--white); }
 
-        .full-screen {
+        .screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
-            z-index: 1000; text-align: center;
+            z-index: 1000; text-align: center; padding: 20px; box-sizing: border-box;
         }
 
         /* 1. Inicio */
-        #overlay { background: var(--bg); z-index: 9999; }
-        .titulo-inicio {
-            font-size: 2.5em; color: var(--neon-cian);
-            text-shadow: 0 0 10px var(--neon-cian), 0 0 20px var(--neon-cian);
-            letter-spacing: 5px; margin-bottom: 40px;
+        #overlay { background: linear-gradient(135deg, #1a0b2e 0%, #090214 100%); z-index: 9999; }
+        .main-title {
+            font-size: 1.8rem; font-weight: bold; text-transform: uppercase;
+            letter-spacing: 2px; margin-bottom: 30px; line-height: 1.2;
+            text-shadow: 0 0 10px var(--neon-purple);
         }
 
-        /* 2. Transición */
-        #pantalla-transicion { background: rgba(0,0,0,0.95); display: none; z-index: 9000; }
-        .card-neon {
-            width: 80%; max-width: 300px; padding: 25px; 
-            border: 2px solid var(--neon-rosa); border-radius: 20px;
-            box-shadow: 0 0 20px var(--neon-rosa); background: rgba(255, 0, 255, 0.05);
+        /* 2. Detección */
+        #pantalla-transicion { background: rgba(0,0,0,0.9); display: none; z-index: 9000; }
+        .card-glass {
+            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px);
+            border: 2px solid var(--neon-pink); border-radius: 20px; padding: 30px;
+            box-shadow: 0 0 20px var(--neon-pink); width: 85%; max-width: 320px;
         }
 
         /* 3. Ruleta */
-        #wheel-container { display: none; background: var(--bg); z-index: 9100; }
+        #wheel-container { display: none; background: var(--deep-purple); z-index: 9100; }
         .wheel-box { position: relative; width: 330px; height: 330px; margin: 20px 0; }
-        canvas { width: 100%; height: 100%; filter: drop-shadow(0 0 8px var(--neon-cian)); }
+        canvas { width: 100%; height: 100%; filter: drop-shadow(0 0 15px var(--neon-purple)); }
         
         .wheel-arrow {
             position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
             width: 0; height: 0; border-left: 18px solid transparent;
-            border-right: 18px solid transparent; border-top: 30px solid var(--neon-amarillo); z-index: 20;
+            border-right: 18px solid transparent; border-top: 35px solid var(--neon-pink); z-index: 20;
         }
 
         .wheel-center {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 75px; height: 75px; background: white; border-radius: 50%;
+            width: 70px; height: 70px; background: var(--white); border-radius: 50%;
             display: flex; justify-content: center; align-items: center;
-            font-weight: bold; color: black; z-index: 25;
-            box-shadow: 0 0 15px white; border: 3px solid black; cursor: pointer;
+            font-weight: bold; color: var(--deep-purple); z-index: 25;
+            box-shadow: 0 0 15px var(--white); cursor: pointer; border: none;
         }
 
-        /* 4. Registro (Post-Premio) */
-        #step-registro { display: none; background: rgba(0,0,0,0.98); z-index: 9200; }
-        .form-box { width: 85%; max-width: 340px; padding: 25px; background: #111; border-radius: 20px; border: 1px solid #333; }
-        
+        /* 4. Formulario Final */
+        #step-registro { display: none; background: linear-gradient(180deg, #1a0b2e 0%, #3b106d 100%); z-index: 9200; }
+        .form-box { width: 100%; max-width: 340px; }
         input { 
-            width: 100%; margin: 12px 0; padding: 14px; background: #222;
-            border: 1px solid #444; border-radius: 10px; color: white;
-            font-size: 16px; box-sizing: border-box;
+            width: 100%; margin: 10px 0; padding: 15px; background: rgba(255,255,255,0.05);
+            border: 1px solid var(--neon-purple); border-radius: 12px; color: white;
+            font-size: 16px; box-sizing: border-box; outline: none;
         }
-        input:focus { border-color: var(--neon-cian); outline: none; }
+        input:focus { border-color: var(--neon-pink); box-shadow: 0 0 10px var(--neon-pink); }
 
-        .btn-main {
-            background: var(--neon-cian); color: #000; border: none; padding: 18px 40px;
+        .btn-action {
+            background: var(--white); color: var(--deep-purple); border: none; padding: 16px 40px;
             border-radius: 50px; font-weight: bold; cursor: pointer;
-            text-transform: uppercase; letter-spacing: 2px;
-            box-shadow: 0 0 15px var(--neon-cian);
+            text-transform: uppercase; letter-spacing: 1px; transition: 0.3s;
+            margin-top: 15px;
         }
 
-        .privacy { font-size: 11px; color: #888; margin: 15px 0; display: flex; gap: 8px; text-align: left; }
+        .privacy-row { font-size: 12px; color: #bbb; margin: 15px 0; display: flex; align-items: flex-start; gap: 10px; text-align: left; }
+        .privacy-row input { width: auto; margin: 0; }
     </style>
 </head>
 <body>
 
-    <div id="overlay" class="full-screen">
-        <div class="titulo-inicio">COLONIA 55</div>
-        <button class="btn-main" onclick="activarAR()">ESCANEAR CÓDIGO</button>
+    <div id="overlay" class="screen">
+        <div class="main-title">¡PARTICIPA EN NUESTRA<br>RULETA!</div>
+        <button class="btn-action" onclick="activarAR()">ESCANEER AR</button>
     </div>
 
-    <div id="pantalla-transicion" class="full-screen">
-        <div class="card-neon">
-            <h2 style="color: var(--neon-rosa);">¡CÓDIGO LISTO!</h2>
-            <p>Se ha desbloqueado la ruleta de premios Colonia 55.</p>
+    <div id="pantalla-transicion" class="screen">
+        <div class="card-glass">
+            <h2 style="color: var(--neon-pink); margin-top: 0;">¡CÓDIGO DETECTADO!</h2>
+            <p>Prepárate para girar y ganar un premio especial.</p>
         </div>
-        <button class="btn-main" style="margin-top: 30px; background: var(--neon-rosa); box-shadow: 0 0 15px var(--neon-rosa);" onclick="irARuleta()">GIRAR AHORA</button>
+        <button class="btn-action" onclick="irARuleta()">GIRAR RULETA</button>
     </div>
 
-    <div id="wheel-container" class="full-screen">
-        <h2 style="color: var(--neon-cian);">PRUEBA TU SUERTE</h2>
+    <div id="wheel-container" class="screen">
+        <h2 style="text-shadow: 0 0 10px var(--neon-purple);">TOCA EL CENTRO</h2>
         <div class="wheel-box">
             <div class="wheel-arrow"></div>
             <canvas id="canvasWheel"></canvas>
             <div class="wheel-center" id="btnSpin">GIRAR</div>
         </div>
-        <p id="txtPremio" style="color: var(--neon-amarillo); font-weight: bold; font-size: 1.5em; text-shadow: 0 0 10px var(--neon-amarillo);"></p>
+        <p id="txtPremio" style="color: var(--neon-pink); font-weight: bold; font-size: 1.6em; min-height: 1.5em;"></p>
     </div>
 
-    <div id="step-registro" class="full-screen">
+    <div id="step-registro" class="screen">
         <div class="form-box">
-            <h3 id="titulo-premio" style="color: var(--neon-amarillo); margin-bottom: 20px;"></h3>
-            <p style="font-size: 14px; margin-bottom: 20px;">Déjanos tus datos para enviarte tu premio y el brochure digital.</p>
+            <h2 id="label-ganaste" style="color: var(--neon-pink); margin-bottom: 5px;">¡FELICIDADES!</h2>
+            <p style="margin-bottom: 25px;">Completa tus datos para recibir tu premio.</p>
+            
             <input type="text" id="nombre" placeholder="Nombre completo">
             <input type="tel" id="whatsapp" placeholder="WhatsApp">
-            <div class="privacy">
+            
+            <div class="privacy-row">
                 <input type="checkbox" id="aviso">
-                <label for="aviso">Acepto el aviso de privacidad de datos.</label>
+                <label for="aviso">Acepto el aviso de privacidad y el tratamiento de mis datos personales.</label>
             </div>
-            <button class="btn-main" style="width: 100%;" onclick="finalizarTodo()">RECLAMAR PREMIO</button>
+            
+            <button class="btn-action" style="width: 100%; background: var(--neon-pink); color: white;" onclick="enviarWhatsApp()">RECLAMAR PREMIO</button>
         </div>
     </div>
 
@@ -126,33 +129,33 @@
 
     <script>
         const sceneEl = document.querySelector('a-scene');
-        const premios = ["PREMIO 1", "DESCUENTO", "PREMIO 2", "SIGUE INTENTANDO", "PREMIO 3", "PREMIO 4", "PREMIO 5", "SIN PREMIO"];
-        const colores = ["#ff00ff", "#00ffff", "#ff00ff", "#00ffff", "#ff00ff", "#00ffff", "#ff00ff", "#00ffff"];
+        const premios = ["PREMIO 1", "PREMIO 2", "PREMIO 3", "PREMIO 4", "PREMIO 5", "PREMIO 6", "PREMIO 7", "PREMIO 8"];
+        const colores = ["#8a2be2", "#ff007f", "#8a2be2", "#ff007f", "#8a2be2", "#ff007f", "#8a2be2", "#ff007f"];
         
         let canvas = document.getElementById('canvasWheel');
         let ctx = canvas.getContext('2d');
         canvas.width = 500; canvas.height = 500;
         let startAngle = 0;
         let arc = Math.PI / (premios.length / 2);
-        let premioGanado = "";
+        let premioFinal = "";
 
         function draw() {
             ctx.clearRect(0,0,500,500);
-            ctx.strokeStyle = "white";
-            ctx.lineWidth = 2;
             for(let i = 0; i < premios.length; i++) {
                 let angle = startAngle + i * arc;
                 ctx.fillStyle = colores[i];
                 ctx.beginPath();
                 ctx.arc(250, 250, 240, angle, angle + arc, false);
-                ctx.arc(250, 250, 30, angle + arc, angle, true);
+                ctx.arc(250, 250, 40, angle + arc, angle, true);
                 ctx.fill();
+                ctx.strokeStyle = "rgba(255,255,255,0.2)";
                 ctx.stroke();
+
                 ctx.save();
-                ctx.fillStyle = "black";
-                ctx.translate(250 + Math.cos(angle + arc/2) * 150, 250 + Math.sin(angle + arc/2) * 150);
+                ctx.fillStyle = "white";
+                ctx.translate(250 + Math.cos(angle + arc/2) * 160, 250 + Math.sin(angle + arc/2) * 160);
                 ctx.rotate(angle + arc/2 + Math.PI/2);
-                ctx.font = 'bold 16px Arial';
+                ctx.font = 'bold 18px sans-serif';
                 ctx.fillText(premios[i], -ctx.measureText(premios[i]).width/2, 0);
                 ctx.restore();
             }
@@ -178,6 +181,8 @@
 
         document.getElementById('btnSpin').addEventListener('click', () => {
             document.getElementById('btnSpin').style.pointerEvents = 'none';
+            document.getElementById('btnSpin').style.opacity = '0.5';
+            
             let spinAngleStart = Math.random() * 10 + 25;
             let spinTime = 0;
             let spinTimeTotal = Math.random() * 3 + 4 * 1000;
@@ -187,13 +192,13 @@
                 if(spinTime >= spinTimeTotal) {
                     let degrees = startAngle * 180 / Math.PI + 90;
                     let index = Math.floor((360 - degrees % 360) / (arc * 180 / Math.PI));
-                    premioGanado = premios[index];
-                    document.getElementById('txtPremio').innerText = "GANASTE: " + premioGanado;
+                    premioFinal = premios[index];
+                    document.getElementById('txtPremio').innerText = "¡GANASTE " + premioFinal + "!";
                     
                     setTimeout(() => {
                         document.getElementById('wheel-container').style.display = 'none';
                         document.getElementById('step-registro').style.display = 'flex';
-                        document.getElementById('titulo-premio').innerText = "¡GANASTE " + premioGanado + "!";
+                        document.getElementById('label-ganaste').innerText = "¡GANASTE " + premioFinal + "!";
                     }, 2000);
                     return;
                 }
@@ -206,13 +211,13 @@
             rotate();
         });
 
-        function finalizarTodo() {
+        function enviarWhatsApp() {
             const nom = document.getElementById('nombre').value;
             const tel = document.getElementById('whatsapp').value;
-            const av = document.getElementById('aviso').checked;
-            if(!nom || !tel || !av) { alert("Completa tus datos para reclamar."); return; }
-            
-            const msg = encodeURIComponent(`*RECLAMO DE PREMIO COLONIA 55*\nNombre: ${nom}\nWhatsApp: ${tel}\nGanó: ${premioGanado}\n_Aceptó aviso de privacidad._`);
+            if(!nom || !tel || !document.getElementById('aviso').checked) {
+                alert("Completa tus datos y acepta la privacidad."); return;
+            }
+            const msg = encodeURIComponent(`*GANADOR DE RULETA*\nPremio: ${premioFinal}\nNombre: ${nom}\nWhatsApp: ${tel}\n_Consentimiento de privacidad aceptado._`);
             window.location.href = `https://wa.me/5215542492026?text=${msg}`;
         }
 
